@@ -6,7 +6,11 @@
         touchHandlers,
         drawer,
         touches = {},
-        isDrawing = false;
+        isDrawing = false,
+        offset = {
+            x: 0,
+            y: 0
+        };
 
     drawer = {
         startDrawing: function (x, y) {
@@ -44,8 +48,8 @@
                 touches = {};
                 forEachEl(ev.targetTouches, function (el) {
                     touches[el.identifier] = {
-                        pageX: el.pageX,
-                        pageY: el.pageY
+                        pageX: el.pageX + offset.x,
+                        pageY: el.pageY - offset.y
                     };
                 });
                 drawer.startDrawing();
@@ -66,30 +70,37 @@
                 forEachEl(ev.targetTouches, function (el) {
                     var currPos = touches[el.identifier];
                     drawer.continueDrawingAt(currPos.pageX, currPos.pageY);
-                    drawer.draw(el.pageX, el.pageY);
+                    drawer.draw(el.pageX + offset.x, el.pageY - offset.y);
 
                     touches[el.identifier] = {
-                        pageX: el.pageX,
-                        pageY: el.pageY
+                        pageX: el.pageX + offset.x,
+                        pageY: el.pageY - offset.y
                     };
                 });
             }
+        },
+
+        setCanvasOffset: function (x, y) {
+            offset.x = x || 0;
+            offset.y = y || 0;
         }
     };
 
     function setSize () {
         if (canvas) {
             canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight - 4;
+            canvas.height = window.innerHeight - 4 - 45;
+            canvas.style.marginTop = '45px';
+            touchHandlers.setCanvasOffset(0, 45);
         }
     }
 
     function initEvents () {
         document.body.addEventListener('touchmove', function (ev) { ev.preventDefault(); }, false);
 
-        window.addEventListeners(canvas, 'touchstart', touchHandlers.onTouchStart);
-        window.addEventListeners(canvas, 'touchend', touchHandlers.onTouchEnd);
-        window.addEventListeners(canvas, 'touchmove', touchHandlers.onTouchMove);
+        addEventListeners(canvas, 'touchstart', touchHandlers.onTouchStart);
+        addEventListeners(canvas, 'touchend', touchHandlers.onTouchEnd);
+        addEventListeners(canvas, 'touchmove', touchHandlers.onTouchMove);
     }
 
     global.touchEventsDrawing = {
