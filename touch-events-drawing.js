@@ -6,6 +6,7 @@
         touchHandlers,
         drawer,
         touches = {},
+        randomColor = false,
         isDrawing = false,
         offset = {
             x: 0,
@@ -41,7 +42,16 @@
         },
 
         setColor: function (color) {
-            ctx.strokeStyle = color;
+            if (color === 'random') {
+                randomColor = setInterval(function () {
+                    ctx.beginPath();
+                    ctx.strokeStyle = getRandomColor();
+                }, 100);
+            } else {
+                clearInterval(randomColor);
+                randomColor = false;
+                ctx.strokeStyle = color;
+            }
         }
     };
 
@@ -115,7 +125,7 @@
         buttons.style.right = '0';
         document.body.insertBefore(buttons, canvas);
 
-        ['black', 'red', 'green', 'blue'].forEach(function (color) {
+        ['black', 'red', 'green', 'blue', 'random'].forEach(function (color) {
             var b = document.createElement('button');
             b.class = color;
             b.style.backgroundColor = color;
