@@ -38,6 +38,10 @@
             }
 
             ctx.moveTo(x, y);
+        },
+
+        setColor: function (color) {
+            ctx.strokeStyle = color;
         }
     };
 
@@ -103,12 +107,36 @@
         addEventListeners(canvas, 'touchmove', touchHandlers.onTouchMove);
     }
 
+    function createControls () {
+        var buttons = document.createElement('div');
+        buttons.class = 'buttons';
+        buttons.style.height = '40px';
+        buttons.style.position = 'absolute';
+        buttons.style.right = '0';
+        document.body.insertBefore(buttons, canvas);
+
+        ['black', 'red', 'green', 'blue'].forEach(function (color) {
+            var b = document.createElement('button');
+            b.class = color;
+            b.style.backgroundColor = color;
+            b.style.width = b.style.height = '40px';
+            b.style.margin = '0 10px';
+
+            buttons.appendChild(b);
+
+            b.addEventListener('click', function () {
+                drawer.setColor(color);
+            });
+        });
+    }
+
     global.touchEventsDrawing = {
         onLoad: function onLoad () {
             canvas = $('canvas')[0];
             setSize();
             ctx = canvas.getContext('2d');
             initEvents();
+            createControls();
         }
     };
 }(window));
