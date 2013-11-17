@@ -10,3 +10,11 @@ function addEventListeners (el, types, listener, useCapture) {
         });
     }
 }
+
+function forEachEl (query, fn) {
+    if (query[0]) {
+        Array.prototype.forEach.call(query, fn);
+    } else {
+        fn (query, 0);
+    }
+}

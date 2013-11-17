@@ -5,13 +5,14 @@
         ctx,
         touchHandlers,
         drawer,
+        touches = {},
         isDrawing = false;
 
     drawer = {
         startDrawing: function (x, y) {
             isDrawing = true;
             ctx.beginPath();
-            ctx.moveTo(x, y);
+            drawer.continueDrawingAt(x, y);
         },
 
         endDrawing: function () {
@@ -25,6 +26,14 @@
 
             ctx.lineTo(x, y);
             ctx.stroke();
+        },
+
+        continueDrawingAt: function (x, y) {
+            if (!isDrawing) {
+                return;
+            }
+
+            ctx.moveTo(x, y);
         }
     };
 
@@ -32,16 +41,38 @@
         onTouchStart: function (ev) {
             if (ev.targetTouches.length) {
                 ev.preventDefault();
-                drawer.startDrawing(ev.targetTouches[0].pageX, ev.targetTouches[0].pageY);
+                touches = {};
+                forEachEl(ev.targetTouches, function (el) {
+                    touches[el.identifier] = {
+                        pageX: el.pageX,
+                        pageY: el.pageY
+                    };
+                });
+                drawer.startDrawing();
             }
         },
         onTouchEnd: function (ev) {
-            drawer.endDrawing(ev.targetTouches[0].pageX, ev.targetTouches[0].pageY);
+            forEachEl(ev.changedTouches, function (el) {
+                delete touches[el.identifier];
+            });
+
+            if (ev.targetTouches.length === 0) {
+                drawer.endDrawing();
+            }
         },
         onTouchMove: function (ev) {
             if (ev.targetTouches.length) {
                 ev.preventDefault();
-                drawer.draw(ev.targetTouches[0].pageX, ev.targetTouches[0].pageY);
+                forEachEl(ev.targetTouches, function (el) {
+                    var currPos = touches[el.identifier];
+                    drawer.continueDrawingAt(currPos.pageX, currPos.pageY);
+                    drawer.draw(el.pageX, el.pageY);
+
+                    touches[el.identifier] = {
+                        pageX: el.pageX,
+                        pageY: el.pageY
+                    };
+                });
             }
         }
     };
